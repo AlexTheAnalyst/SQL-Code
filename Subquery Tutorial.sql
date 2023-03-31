@@ -40,4 +40,4 @@ From EmployeeSalary
 where EmployeeID in (
 	Select EmployeeID 
 	From EmployeeDemographics
-	where Age > 30)
+	where Age > 30);
