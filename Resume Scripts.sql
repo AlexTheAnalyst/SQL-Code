@@ -109,4 +109,4 @@ FROM 	[Example],[dbo].(Recommendations)  r WITH(NOLOCK)
 						OR  R.Recommendation  LIKE  '%Invalid'
 						OR  R.Recommendation  LIKE  '%Exception')
 GROUP BY r.ProtCode
-ORDER BY 1
+ORDER BY 1;
