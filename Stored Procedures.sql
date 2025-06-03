@@ -1,59 +1,70 @@
 /*
-
-Today's Topic: Stored Procedures
-
+Today's Topic: Improved Stored Procedures
 */
 
-
-CREATE PROCEDURE Temp_Employee
+-- Procedure 1: Show summary by JobTitle
+CREATE OR ALTER PROCEDURE dbo.Temp_Employee
 AS
-DROP TABLE IF EXISTS #temp_employee
-Create table #temp_employee (
-JobTitle varchar(100),
-EmployeesPerJob int ,
-AvgAge int,
-AvgSalary int
-)
+BEGIN
+    SET NOCOUNT ON;
 
+    DROP TABLE IF EXISTS #temp_employee;
 
-Insert into #temp_employee
-SELECT JobTitle, Count(JobTitle), Avg(Age), AVG(salary)
-FROM SQLTutorial..EmployeeDemographics emp
-JOIN SQLTutorial..EmployeeSalary sal
-	ON emp.EmployeeID = sal.EmployeeID
-group by JobTitle
+    CREATE TABLE #temp_employee (
+        JobTitle NVARCHAR(100),
+        EmployeesPerJob INT,
+        AvgAge INT,
+        AvgSalary INT
+    );
 
-Select * 
-From #temp_employee
-GO;
+    INSERT INTO #temp_employee (JobTitle, EmployeesPerJob, AvgAge, AvgSalary)
+    SELECT 
+        emp.JobTitle, 
+        COUNT(*) AS EmployeesPerJob, 
+        AVG(emp.Age) AS AvgAge, 
+        AVG(sal.Salary) AS AvgSalary
+    FROM SQLTutorial..EmployeeDemographics emp
+    INNER JOIN SQLTutorial..EmployeeSalary sal
+        ON emp.EmployeeID = sal.EmployeeID
+    GROUP BY emp.JobTitle;
 
+    SELECT * FROM #temp_employee;
+END
+GO
 
-
-
-CREATE PROCEDURE Temp_Employee2 
-@JobTitle nvarchar(100)
+-- Procedure 2: Filter by JobTitle
+CREATE OR ALTER PROCEDURE dbo.Temp_Employee_ByTitle
+    @JobTitle NVARCHAR(100)
 AS
-DROP TABLE IF EXISTS #temp_employee3
-Create table #temp_employee3 (
-JobTitle varchar(100),
-EmployeesPerJob int ,
-AvgAge int,
-AvgSalary int
-)
+BEGIN
+    SET NOCOUNT ON;
 
+    DROP TABLE IF EXISTS #temp_employee;
 
-Insert into #temp_employee3
-SELECT JobTitle, Count(JobTitle), Avg(Age), AVG(salary)
-FROM SQLTutorial..EmployeeDemographics emp
-JOIN SQLTutorial..EmployeeSalary sal
-	ON emp.EmployeeID = sal.EmployeeID
-where JobTitle = @JobTitle --- make sure to change this in this script from original above
-group by JobTitle
+    CREATE TABLE #temp_employee (
+        JobTitle NVARCHAR(100),
+        EmployeesPerJob INT,
+        AvgAge INT,
+        AvgSalary INT
+    );
 
-Select * 
-From #temp_employee3
-GO;
+    INSERT INTO #temp_employee (JobTitle, EmployeesPerJob, AvgAge, AvgSalary)
+    SELECT 
+        emp.JobTitle, 
+        COUNT(*) AS EmployeesPerJob, 
+        AVG(emp.Age) AS AvgAge, 
+        AVG(sal.Salary) AS AvgSalary
+    FROM SQLTutorial..EmployeeDemographics emp
+    INNER JOIN SQLTutorial..EmployeeSalary sal
+        ON emp.EmployeeID = sal.EmployeeID
+    WHERE emp.JobTitle = @JobTitle
+    GROUP BY emp.JobTitle;
 
+    SELECT * FROM #temp_employee;
+END
+GO
 
-exec Temp_Employee2 @jobtitle = 'Salesman'
-exec Temp_Employee2 @jobtitle = 'Accountant'
+-- Example calls
+EXEC dbo.Temp_Employee;
+EXEC dbo.Temp_Employee_ByTitle @JobTitle = 'Salesman';
+EXEC dbo.Temp_Employee_ByTitle @JobTitle = 'Accountant';
